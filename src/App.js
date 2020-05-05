@@ -1,13 +1,13 @@
 import React, { Fragment, useState } from 'react';
 import { LeftNavigation } from './components/LeftNavigation/LeftNavigation.component';
 import { RightNavigation } from './components/RightNavigation/RightNavigation.component';
-import { Logo } from './pages/Logo.page';
-import { Dashboard } from './pages/Dashboard.page';
-import { Resume } from './pages/Resume.page';
-import { Projects } from './pages/Projects.page';
-import { Blogs } from './pages/Blogs.page';
-import { ProgressTracker } from './pages/ProgressTracker.page';
-import { HireMe } from './pages/HireMe.page';
+import { Logo } from './components/LeftNavigation/pages/Logo.page';
+import { Dashboard } from './components/LeftNavigation/pages/Dashboard.page';
+import { Resume } from './components/LeftNavigation/pages/Resume.page';
+import { Projects } from './components/LeftNavigation/pages/Projects.page';
+import { Blogs } from './components/LeftNavigation/pages/Blogs.page';
+import { ProgressTracker } from './components/LeftNavigation/pages/ProgressTracker.page';
+import { HireMe } from './components/LeftNavigation/pages/HireMe.page';
 
 const App = () => {
 	const [ activePage, setActivePage ] = useState('logo');
@@ -23,12 +23,12 @@ export default App;
 
 const Homepage = ({ activePage, setActivePage }) => {
 	return (
-		<div className="w-screen h-screen flex text-center border-2 border-green-500">
-			<div className="w-3/12 max-w-xs border">
+		<div className="relative flex h-screen text-center border-green-500">
+			<div className="w-2/12 border">
 				<LeftNavigation setActivePage={setActivePage} />
 			</div>
 			<div className="w-full border">{activePage ? displayPage(activePage) : alert('No page to Display')}</div>
-			<div className="w-1/12 border">
+			<div className="h-screen border">
 				<RightNavigation />
 			</div>
 		</div>
