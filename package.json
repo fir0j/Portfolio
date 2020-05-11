@@ -1,6 +1,5 @@
 {
 	"name": "portfolio",
-	"homepage": "https://fir0j.github.io/Portfolio",
 	"version": "0.1.0",
 	"private": true,
 	"dependencies": {
@@ -19,9 +18,7 @@
 	"scripts": {
 		"start": "react-scripts start",
 		"build": "react-scripts build",
-		"buildAndWatch": "postcss src/css/framework/tailwind.src.css -o src/css/framework/tailwind.custom.css --watch",
-		"predeploy": "npm run build",
-		"deploy": "gh-pages -d build"
+		"buildAndWatch": "postcss src/css/framework/tailwind.src.css -o src/css/framework/tailwind.custom.css --watch"
 	},
 	"eslintConfig": {
 		"extends": "react-app"
