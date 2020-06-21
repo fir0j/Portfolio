@@ -8,7 +8,7 @@ import { Blogs } from './components/LeftNavigation/pages/Blogs.page';
 import { ProgressTracker } from './components/LeftNavigation/pages/ProgressTracker.page';
 import { HireMe } from './components/LeftNavigation/pages/HireMe.page';
 import { BrowserRouter as Router, Link, Route, Switch } from 'react-router-dom';
-import { auth, ui, uiConfig, verifyEmail } from './firebase/AuthUI';
+import { auth, ui, uiConfig, verifyEmail, passwordlessAuth } from './firebase/AuthUI';
 
 const App = () => {
 	const [ user, setUser ] = useState(null);
