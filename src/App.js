@@ -13,8 +13,10 @@ import { auth, ui, uiConfig, verifyEmail, passwordlessAuth } from './firebase/Au
 const App = () => {
 	const [ user, setUser ] = useState(null);
 	const [ isLoggedIn, setIsLoggedIn ] = useState(false);
+	const [ showPasswordlessAuthUI, setShowPasswordlessAuthUI ] = useState(false);
 
-	useEffect(() => {
+	useEffect((show) => {
+		setShowPasswordlessAuthUI(false);
 		const unSubscribeFromAuth = auth.onAuthStateChanged((user) => {
 			if (user) {
 				setUser(user);
@@ -24,6 +26,7 @@ const App = () => {
 				// when not logged in
 				setUser(null);
 				ui.start('#firebaseui-auth-container', uiConfig);
+				setShowPasswordlessAuthUI(true);
 				console.log('Not logged in');
 			}
 		});
@@ -93,14 +96,14 @@ const App = () => {
 			>
 				<p>Loading...</p>
 			</div>
-			<div className="flex justify-center outline-none w-full">
-				<button
-					className="border rounded-md text-white h-12 p-2 bg-gray-500"
-					onClick={() => passwordlessAuth('firoj@flipr.ai')}
-				>
-					Login Without Password
-				</button>
-			</div>
+
+			{showPasswordlessAuthUI && (
+				<div className="flex justify-center outline-none w-full">
+					<button className="border rounded-md text-white h-12 p-2 bg-gray-500" onClick={passwordlessAuth}>
+						Login Without Password
+					</button>
+				</div>
+			)}
 		</div>
 	);
 

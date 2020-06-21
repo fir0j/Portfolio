@@ -81,7 +81,8 @@ const verifyEmail = () => {
 		});
 };
 
-const passwordlessAuth = (email) => {
+const passwordlessAuth = () => {
+	const email = prompt('Enter your Email.');
 	var actionCodeSettings = {
 		// URL you want to redirect back to. The domain (www.example.com) for this
 		// URL must be whitelisted in the Firebase Console.
@@ -98,18 +99,20 @@ const passwordlessAuth = (email) => {
 		// },
 		// dynamicLinkDomain: 'https://www.portfolio-b59bb.firebaseapp.com'
 	};
-	auth
-		.sendSignInLinkToEmail(email, actionCodeSettings)
-		.then(function() {
-			// The link was successfully sent. Inform the user.
-			// Save the email locally so you don't need to ask the user for it again
-			// if they open the link on the same device.
-			window.localStorage.setItem('emailForSignIn', email);
-			console.log('verification link is sent');
-		})
-		.catch(function(error) {
-			console.log('Error! while sending verification link', error);
-		});
+	if (email) {
+		auth
+			.sendSignInLinkToEmail(email, actionCodeSettings)
+			.then(function() {
+				// The link was successfully sent. Inform the user.
+				// Save the email locally so you don't need to ask the user for it again
+				// if they open the link on the same device.
+				window.localStorage.setItem('emailForSignIn', email);
+				alert(`Click on the LINK IN YOUR MAIL (${email}) to login`);
+			})
+			.catch(function(error) {
+				console.log('Error! while sending verification link', error);
+			});
+	}
 };
 
 export { auth, ui, uiConfig, verifyEmail, passwordlessAuth };
