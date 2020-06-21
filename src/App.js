@@ -31,10 +31,18 @@ const App = () => {
 			}
 		});
 
+		return () => {
+			unSubscribeFromAuth();
+		};
+		// eslint-disable-next-line
+	}, []);
+
+	// Checking for the browser link to be signin link
+	useEffect(() => {
 		const confirmPasswordlessAuth = () => {
-			var url = new URL(window.location.href);
-			var mode = url.searchParams.get('mode');
-			console.log('mode is:', mode);
+			// var url = new URL(window.location.href);
+			// var mode = url.searchParams.get('mode');
+			// console.log('mode is:', mode);
 			// Confirm the link is a sign-in with email link.
 			if (auth.isSignInWithEmailLink(window.location.href)) {
 				// Additional state parameters can also be passed via URL.
@@ -69,12 +77,7 @@ const App = () => {
 					});
 			}
 		};
-
 		confirmPasswordlessAuth();
-
-		return () => {
-			unSubscribeFromAuth();
-		};
 		// eslint-disable-next-line
 	}, []);
 
