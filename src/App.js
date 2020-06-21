@@ -28,51 +28,52 @@ const App = () => {
 			}
 		});
 
-		// confirmPasswordlessAuth();
+		const confirmPasswordlessAuth = () => {
+			var url = new URL(window.location.href);
+			var mode = url.searchParams.get('mode');
+			console.log('mode is:', mode);
+			// Confirm the link is a sign-in with email link.
+			if (auth.isSignInWithEmailLink(window.location.href)) {
+				// Additional state parameters can also be passed via URL.
+				// This can be used to continue the user's intended action before triggering
+				// the sign-in operation.
+				// Get the email if available. This should be available if the user completes
+				// the flow on the same device where they started it.
+				var email = window.localStorage.getItem('emailForSignIn');
+				if (!email) {
+					// User opened the link on a different device. To prevent session fixation
+					// attacks, ask the user to provide the associated email again. For example:
+					email = window.prompt('Please provide your email for confirmation');
+				}
+				// The client SDK will parse the code from the link for you.
+				auth
+					.signInWithEmailLink(email, window.location.href)
+					.then(function(result) {
+						// Clear email from storagsetUser(user);
+						setIsLoggedIn(true);
+						console.log('LoggedIn userId is:', user.email, 'email Verified:', user.emailVerified);
+						window.localStorage.removeItem('emailForSignIn');
+						// You can access the new user via result.user
+						// Additional user info profile not available via:
+						// result.additionalUserInfo.profile == null
+						// You can check if the user is new or existing:
+						// result.additionalUserInfo.isNewUser
+					})
+					.catch(function(error) {
+						console.log('error!signing in with email');
+						// Some error occurred, you can inspect the code: error.code
+						// Common errors could be invalid email and invalid or expired OTPs.
+					});
+			}
+		};
+
+		confirmPasswordlessAuth();
 
 		return () => {
 			unSubscribeFromAuth();
 		};
+		// eslint-disable-next-line
 	}, []);
-
-	// const confirmPasswordlessAuth = () => {
-	// 	var url = new URL(window.location.href);
-	// 	var mode = url.searchParams.get('mode');
-	// 	console.log('mode is:', mode);
-	// 	// Confirm the link is a sign-in with email link.
-	// 	if (auth.isSignInWithEmailLink(window.location.href)) {
-	// 		// Additional state parameters can also be passed via URL.
-	// 		// This can be used to continue the user's intended action before triggering
-	// 		// the sign-in operation.
-	// 		// Get the email if available. This should be available if the user completes
-	// 		// the flow on the same device where they started it.
-	// 		var email = window.localStorage.getItem('emailForSignIn');
-	// 		if (!email) {
-	// 			// User opened the link on a different device. To prevent session fixation
-	// 			// attacks, ask the user to provide the associated email again. For example:
-	// 			email = window.prompt('Please provide your email for confirmation');
-	// 		}
-	// 		// The client SDK will parse the code from the link for you.
-	// 		auth
-	// 			.signInWithEmailLink(email, window.location.href)
-	// 			.then(function(result) {
-	// 				// Clear email from storagsetUser(user);
-	// 				setIsLoggedIn(true);
-	// 				console.log('LoggedIn userId is:', user.email, 'email Verified:', user.emailVerified);
-	// 				window.localStorage.removeItem('emailForSignIn');
-	// 				// You can access the new user via result.user
-	// 				// Additional user info profile not available via:
-	// 				// result.additionalUserInfo.profile == null
-	// 				// You can check if the user is new or existing:
-	// 				// result.additionalUserInfo.isNewUser
-	// 			})
-	// 			.catch(function(error) {
-	// 				console.log('error!signing in with email');
-	// 				// Some error occurred, you can inspect the code: error.code
-	// 				// Common errors could be invalid email and invalid or expired OTPs.
-	// 			});
-	// 	}
-	// };
 
 	const logout = (e) => {
 		e.preventDefault();
@@ -92,14 +93,14 @@ const App = () => {
 			>
 				<p>Loading...</p>
 			</div>
-			{/* <div className="flex justify-center outline-none w-full">
+			<div className="flex justify-center outline-none w-full">
 				<button
 					className="border rounded-md text-white h-12 p-2 bg-gray-500"
 					onClick={() => passwordlessAuth('firoj@flipr.ai')}
 				>
 					Login Without Password
 				</button>
-			</div> */}
+			</div>
 		</div>
 	);
 

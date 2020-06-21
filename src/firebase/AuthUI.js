@@ -85,7 +85,7 @@ const passwordlessAuth = (email) => {
 	var actionCodeSettings = {
 		// URL you want to redirect back to. The domain (www.example.com) for this
 		// URL must be whitelisted in the Firebase Console.
-		url: 'https://portfolio-b59bb.firebaseapp.com/__/auth/handler',
+		url: 'https://firoj.netlify.app',
 		// This must be true.
 		handleCodeInApp: true
 		// iOS: {
