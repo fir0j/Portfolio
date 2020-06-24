@@ -67,8 +67,8 @@ var uiConfig = {
 };
 
 const verifyEmail = () => {
-	const email = auth.currentUser.email;
 	const user = auth.currentUser;
+	const email = auth.currentUser.email;
 
 	console.log('sending verification to', email);
 	user
@@ -81,7 +81,7 @@ const verifyEmail = () => {
 		});
 };
 
-const passwordlessAuth = () => {
+const passwordlessLogin = () => {
 	const email = prompt('Enter your Email.');
 	var actionCodeSettings = {
 		// URL you want to redirect back to. The domain (www.example.com) for this
@@ -89,15 +89,6 @@ const passwordlessAuth = () => {
 		url: 'https://firoj.netlify.app',
 		// This must be true.
 		handleCodeInApp: true
-		// iOS: {
-		// 	bundleId: 'com.example.ios'
-		// },
-		// android: {
-		// 	packageName: 'com.example.android',
-		// 	installApp: true,
-		// 	minimumVersion: '12'
-		// },
-		// dynamicLinkDomain: 'https://www.portfolio-b59bb.firebaseapp.com'
 	};
 	if (email) {
 		auth
@@ -115,4 +106,33 @@ const passwordlessAuth = () => {
 	}
 };
 
-export { auth, ui, uiConfig, verifyEmail, passwordlessAuth };
+const changeMail = () => {
+	const user = auth.currentUser;
+	var password = prompt(`Enter password for ${user.email}`);
+	const credential = firebase.auth.EmailAuthProvider.credential(user.email, password);
+	// Prompt the user to re-provide their sign-in credentials
+	user
+		.reauthenticateWithCredential(credential)
+		.then(function() {
+			// User re-authenticated.
+			console.log('reauthenticated!');
+			var mail = prompt('Enter your new mail');
+			console.log(mail);
+			user
+				.updateEmail(mail)
+				.then(function() {
+					console.log('mail updated');
+					// Update successful.
+				})
+				.catch(function(error) {
+					console.log('ERror!', error);
+					// An error happened.
+				});
+		})
+		.catch(function(error) {
+			// An error happened.
+			console.log('Sorry!error in reauthentication', error);
+		});
+};
+
+export { auth, ui, uiConfig, changeMail, verifyEmail, passwordlessLogin };
