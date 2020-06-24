@@ -23,7 +23,6 @@ const App = () => {
 				setUser(user);
 				setIsLoggedIn(true);
 				console.log('LoggedIn userId is:', user.email, 'email Verified:', user.emailVerified);
-				SetIsMailVerified(user.emailVerified);
 			} else {
 				// when not logged in
 				setUser(null);
@@ -65,6 +64,7 @@ const App = () => {
 						.then(function(result) {
 							// Clear email from storagsetUser(user);
 							setIsLoggedIn(true);
+							SetIsMailVerified(user.emailVerified);
 							console.log('user clicked on the verify email link');
 							console.log('LoggedIn userId is:', user.email, 'email Verified:', user.emailVerified);
 							window.localStorage.removeItem('emailForSignIn');
