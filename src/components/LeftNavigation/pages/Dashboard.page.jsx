@@ -1,5 +1,5 @@
 import React, { useState, useReducer } from 'react';
-import { auth, changeMail } from '../../../firebase/AuthUI';
+import { auth, changeMail, changePassword, resetPassword, deleteAccount } from '../../../firebase/AuthUI';
 
 export const Dashboard = () => {
 	const [ user ] = useState(auth.currentUser);
@@ -51,10 +51,12 @@ export const Dashboard = () => {
 						Submit
 					</button>
 				</div>
-				<div>
-					{/* <input className="cursor-pointer border" type="text" placeholder="email" name="email" /> */}
+				<div className="border flex flex-col">
 					<button onClick={changeMail}>update Email</button>
+					<button onClick={changePassword}>changePassword</button>
+					<button onClick={deleteAccount}>DeleteAccount</button>
 				</div>
+				<button onClick={resetPassword}>reset Password</button>
 			</div>
 		</div>
 	);

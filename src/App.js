@@ -12,7 +12,6 @@ import { auth, ui, uiConfig, verifyEmail, passwordlessLogin } from './firebase/A
 
 const App = () => {
 	const [ user, setUser ] = useState(null);
-	const [ isLoggedIn, setIsLoggedIn ] = useState(false);
 	const [ showPasswordlessAuthUI, setShowPasswordlessAuthUI ] = useState(false);
 	const [ isMailVerified, SetIsMailVerified ] = useState(null);
 
@@ -21,7 +20,6 @@ const App = () => {
 		const unSubscribeFromAuth = auth.onAuthStateChanged((user) => {
 			if (user) {
 				setUser(user);
-				setIsLoggedIn(true);
 				console.log('LoggedIn userId is:', user.email, 'email Verified:', user.emailVerified);
 			} else {
 				// when not logged in
@@ -63,7 +61,6 @@ const App = () => {
 						.signInWithEmailLink(email, window.location.href)
 						.then(function(result) {
 							// Clear email from storagsetUser(user);
-							setIsLoggedIn(true);
 							SetIsMailVerified(user.emailVerified);
 							console.log('user clicked on the verify email link');
 							console.log('LoggedIn userId is:', user.email, 'email Verified:', user.emailVerified);
@@ -91,7 +88,6 @@ const App = () => {
 		e.preventDefault();
 		auth.signOut().catch((error) => console.log('error logging out!'));
 		setUser(null);
-		setIsLoggedIn(false);
 		console.log('logged out successfully');
 	};
 
@@ -196,7 +192,7 @@ const App = () => {
 
 					<div className="w-full text-center">
 						<div className="absolute top-0 p-1 m-1 flex justify-center ">
-							{isLoggedIn && !auth.currentUser.emailVerified && !auth.currentUser.phoneNumber ? (
+							{user && !auth.currentUser.emailVerified && !auth.currentUser.phoneNumber ? (
 								<div className="border rounded-sm my-1 p-1 text-center">
 									Please
 									<span
@@ -210,6 +206,9 @@ const App = () => {
 							) : null}
 						</div>
 						<Switch>
+							{/* <Route exact path="/signin">
+								{firebaseLoginUI}
+							</Route> */}
 							<Route exact path="/">
 								<Dashboard />
 							</Route>
@@ -242,7 +241,7 @@ const App = () => {
 		);
 	};
 
-	return <Fragment>{isLoggedIn ? <Homepage /> : firebaseLoginUI}</Fragment>;
+	return <Fragment>{user ? <Homepage /> : firebaseLoginUI}</Fragment>;
 };
 
 export default App;

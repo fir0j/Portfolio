@@ -106,7 +106,7 @@ const passwordlessLogin = () => {
 	}
 };
 
-const changeMail = () => {
+const changePassword = () => {
 	const user = auth.currentUser;
 	var password = prompt(`Enter password for ${user.email}`);
 	const credential = firebase.auth.EmailAuthProvider.credential(user.email, password);
@@ -116,12 +116,11 @@ const changeMail = () => {
 		.then(function() {
 			// User re-authenticated.
 			console.log('reauthenticated!');
-			var mail = prompt('Enter your new mail');
-			console.log(mail);
+			var newPassword = prompt('Enter your new password');
 			user
-				.updateEmail(mail)
+				.updatePassword(newPassword)
 				.then(function() {
-					console.log('mail updated');
+					console.log('new password updated');
 					// Update successful.
 				})
 				.catch(function(error) {
@@ -131,8 +130,83 @@ const changeMail = () => {
 		})
 		.catch(function(error) {
 			// An error happened.
-			console.log('Sorry!error in reauthentication', error);
+			console.log('Sorry! error in reauthentication', error);
 		});
 };
 
-export { auth, ui, uiConfig, changeMail, verifyEmail, passwordlessLogin };
+const changeMail = () => {
+	const user = auth.currentUser;
+	var password = prompt(`Enter password for ${user.email}`);
+	if (password) {
+		const credential = firebase.auth.EmailAuthProvider.credential(user.email, password);
+		// Prompt the user to re-provide their sign-in credentials
+		user
+			.reauthenticateWithCredential(credential)
+			.then(function() {
+				// User re-authenticated.
+				console.log('reauthenticated!');
+				var mail = prompt('Enter your new mail');
+				console.log(mail);
+				user
+					.updateEmail(mail)
+					.then(function() {
+						console.log('mail updated');
+						// Update successful.
+					})
+					.catch(function(error) {
+						console.log('ERror!', error);
+						// An error happened.
+					});
+			})
+			.catch(function(error) {
+				// An error happened.
+				console.log('Sorry!error in reauthentication', error);
+			});
+	}
+};
+
+const deleteAccount = () => {
+	const user = auth.currentUser;
+	window.confirm('Account will be deleted permanently. are you okay?');
+	var password = prompt(`Enter password for ${user.email}`);
+
+	if (password && user.email !== null) {
+		const credential = firebase.auth.EmailAuthProvider.credential(user.email, password);
+		// Prompt the user to re-provide their sign-in credentials
+		user
+			.reauthenticateWithCredential(credential)
+			.then(function() {
+				// User re-authenticated.
+				console.log('reauthenticated!');
+				user
+					.delete()
+					.then(function() {
+						auth.signOut();
+					})
+					.catch(function(error) {
+						console.log('Sorry! Error while deleting user', error);
+					});
+			})
+			.catch(function(error) {
+				// An error happened.
+				console.log('Sorry!error in reauthentication', error);
+			});
+	} else {
+		console.log('either email or password is null');
+	}
+};
+
+const resetPassword = () => {
+	const user = auth.currentUser;
+	auth
+		.sendPasswordResetEmail(user.email)
+		.then(function() {
+			alert(`Link Sent. Please check your email: ${user.email}`);
+		})
+		.catch(function(error) {
+			// An error happened.
+			console.log('Error! while sending password reset link');
+		});
+};
+
+export { auth, ui, uiConfig, changeMail, changePassword, resetPassword, verifyEmail, passwordlessLogin, deleteAccount };
