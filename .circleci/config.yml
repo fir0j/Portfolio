@@ -2,13 +2,13 @@
 version: 2.1
 # Use a package of configuration called an orb.
 jobs:
-    build:
+    bobby:
         docker:
             - image: circleci/ruby:2.4.1
         steps:
             - checkout
             - run: echo "A first hello"
-    build:
+    sally:
         docker:
             - image: circleci/ruby:2.4.1
         steps:
