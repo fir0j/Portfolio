@@ -13,28 +13,29 @@
 		"postcss-cli": "^7.1.1",
 		"react": "^16.13.1",
 		"react-dom": "^16.13.1",
+		"react-redux": "^7.2.0",
 		"react-router-dom": "^5.1.2",
 		"react-scripts": "3.4.1",
+		"redux": "^4.0.5",
+		"redux-logger": "^3.0.6",
 		"tailwindcss": "^1.4.4"
 	},
 	"scripts": {
 		"start": "react-scripts start",
 		"build": "react-scripts build",
-		"buildAndWatch": "postcss src/css/framework/tailwind.src.css -o src/css/framework/tailwind.custom.css --watch"
+		"buildAndWatch": "postcss src/css/framework/tailwind.src.css -o src/css/framework/tailwind.custom.css --watch",
+		"pre-commit": "pretty-quick --staged"
 	},
 	"eslintConfig": {
 		"extends": "react-app"
 	},
 	"browserslist": {
-		"production": [
-			">0.2%",
-			"not dead",
-			"not op_mini all"
-		],
-		"development": [
-			"last 1 chrome version",
-			"last 1 firefox version",
-			"last 1 safari version"
-		]
+		"production": [ ">0.2%", "not dead", "not op_mini all" ],
+		"development": [ "last 1 chrome version", "last 1 firefox version", "last 1 safari version" ]
+	},
+	"devDependencies": {
+		"husky": "^4.2.5",
+		"prettier": "2.0.5",
+		"pretty-quick": "^2.0.1"
 	}
 }
