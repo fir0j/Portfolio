@@ -1,184 +1,115 @@
-import React, { Fragment, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import LeftNavigation from './components/LeftNavigation/LeftNavigation.component';
 import { RightNavigation } from './components/RightNavigation/RightNavigation.component';
 import { Technology } from './components/LeftNavigation/pages/Technology.page';
-import { Dashboard } from './components/LeftNavigation/pages/Dashboard.page';
+import Dashboard from './components/LeftNavigation/pages/Dashboard.page';
 import { Resume } from './components/LeftNavigation/pages/Resume.page';
 import { Projects } from './components/LeftNavigation/pages/Projects.page';
 import { Blogs } from './components/LeftNavigation/pages/Blogs.page';
 import { ProgressTracker } from './components/LeftNavigation/pages/ProgressTracker.page';
 import { HireMe } from './components/LeftNavigation/pages/HireMe.page';
-import { BrowserRouter as Router, Link, Route, Switch } from 'react-router-dom';
-import { auth, ui, uiConfig, verifyEmail, passwordlessLogin } from './firebase/AuthUI';
+import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
+import { connect } from 'react-redux';
+import { setCurrentUser } from './redux/user/userActions';
+import {
+	ui,
+	uiConfig,
+	verifyEmail,
+	passwordlessLogin,
+	confirmPasswordlessAuth,
+	handleLogin,
+	signInWithCustomToken
+} from './firebase/firebase.utils';
 
-const App = () => {
-	const [ user, setUser ] = useState(null);
-	const [ showPasswordlessAuthUI, setShowPasswordlessAuthUI ] = useState(false);
+// receiving these props from redux global store
+const App = ({ currentUser, setCurrentUser }) => {
+	const [ showPasswordlessAuthUI ] = useState(false);
 	const [ isMailVerified, SetIsMailVerified ] = useState(null);
 
-	useEffect((show) => {
-		setShowPasswordlessAuthUI(false);
-		const unSubscribeFromAuth = auth.onAuthStateChanged((user) => {
-			if (user) {
-				setUser(user);
-				console.log('LoggedIn userId is:', user.email, 'email Verified:', user.emailVerified);
-			} else {
-				// when not logged in
-				setUser(null);
-				ui.start('#firebaseui-auth-container', uiConfig);
-				setShowPasswordlessAuthUI(true);
-				console.log('Not logged in');
-			}
-		});
-
-		return () => {
-			unSubscribeFromAuth();
-		};
+	// handling sign in
+	useEffect(
+		() => {
+			const unSubscribeFromAuth = handleLogin(setCurrentUser);
+			return () => {
+				unSubscribeFromAuth();
+			};
+		},
 		// eslint-disable-next-line
-	}, []);
+		[]
+	);
 
 	// Checking for the browser link to be signin link
 	useEffect(
 		() => {
-			const confirmPasswordlessAuth = () => {
-				// var url = new URL(window.location.href);
-				// var mode = url.searchParams.get('mode');
-				// console.log('mode is:', mode);
-				// Confirm the link is a sign-in with email link.
-				if (auth.isSignInWithEmailLink(window.location.href)) {
-					// Additional state parameters can also be passed via URL.
-					// This can be used to continue the user's intended action before triggering
-					// the sign-in operation.
-					// Get the email if available. This should be available if the user completes
-					// the flow on the same device where they started it.
-					var email = window.localStorage.getItem('emailForSignIn');
-					if (!email) {
-						// User opened the link on a different device. To prevent session fixation
-						// attacks, ask the user to provide the associated email again. For example:
-						email = window.prompt('Please provide your email for confirmation');
-					}
-					// The client SDK will parse the code from the link for you.
-					auth
-						.signInWithEmailLink(email, window.location.href)
-						.then(function(result) {
-							// Clear email from storagsetUser(user);
-							SetIsMailVerified(user.emailVerified);
-							console.log('user clicked on the verify email link');
-							console.log('LoggedIn userId is:', user.email, 'email Verified:', user.emailVerified);
-							window.localStorage.removeItem('emailForSignIn');
-							// You can access the new user via result.user
-							// Additional user info profile not available via:
-							// result.additionalUserInfo.profile == null
-							// You can check if the user is new or existing:
-							// result.additionalUserInfo.isNewUser
-						})
-						.catch(function(error) {
-							console.log('error!signing in with email');
-							// Some error occurred, you can inspect the code: error.code
-							// Common errors could be invalid email and invalid or expired OTPs.
-						});
-				}
-			};
-			confirmPasswordlessAuth();
+			confirmPasswordlessAuth(SetIsMailVerified);
 		},
 		// eslint-disable-next-line
 		[ isMailVerified ]
 	);
 
-	const logout = (e) => {
-		e.preventDefault();
-		auth.signOut().catch((error) => console.log('error logging out!'));
-		setUser(null);
-		console.log('logged out successfully');
-	};
-
-	// Signing in using Custom Auth System built using firebase
-	const token =
-		'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJodHRwczovL2lkZW50aXR5dG9vbGtpdC5nb29nbGVhcGlzLmNvbS9nb29nbGUuaWRlbnRpdHkuaWRlbnRpdHl0b29sa2l0LnYxLklkZW50aXR5VG9vbGtpdCIsImlhdCI6MTU5Mjc1ODI4NSwiZXhwIjoxNTkyNzYxODg1LCJpc3MiOiJmaXJlYmFzZS1hZG1pbnNkay14eWFvdUBwb3J0Zm9saW8tYjU5YmIuaWFtLmdzZXJ2aWNlYWNjb3VudC5jb20iLCJzdWIiOiJmaXJlYmFzZS1hZG1pbnNkay14eWFvdUBwb3J0Zm9saW8tYjU5YmIuaWFtLmdzZXJ2aWNlYWNjb3VudC5jb20iLCJ1aWQiOiJzb21lVW5pcXVlVXNlcklEIiwiY2xhaW1zIjp7InByZW1pdW1BY2NvdW50Ijp0cnVlfX0.DYzvXAGrI0GXtQksHo2uIlbyGDx35VpS_ZXnKTY9oGpEOWAPr7NiQkcKNAGqY9bd0VJ_WpJO5yhjWi81FOaKeCdjkM34dzXrjOGfWkOiqG8tDeIaZUnM89MfQvGN42upv0kSKEiGnA-en64Ig0rOwJkhCiY-fa8FjQuXEbO46Z3Gf0XWzLB1oAdpWMW1qy9TU1aI6i7uf8xQdKGyYvRyHicndNkCLYSPiyXGUPrWl41A754d6nEsVYI6554HQ71h1vVCcxV_Va1d_OO3OHVnznFyEwlo_37-gg9dv1Tft2KJ_XQV0aSKNVDns4Y7-beYEcgaY0VeiaMS0T1q6fun_Q';
-	const SignIn = () => {
-		auth.signInWithCustomToken(token).catch(function(error) {
-			// Handle Errors here.
-			var errorCode = error.code;
-			var errorMessage = error.message;
-			console.log(errorMessage, errorCode);
-		});
-	};
-
-	const firebaseLoginUI = (
-		<div>
-			<h1 className="text-center">Welcome to the Firoj's Profolio</h1>
-			<div id="firebaseui-auth-container" />
-			<div
-				id="loader"
-				style={{ marginTop: '20%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}
-			>
-				<p>Loading...</p>
-			</div>
-
-			{showPasswordlessAuthUI && (
-				<div>
-					<div className="flex justify-center outline-none w-full">
-						<button
-							className="border rounded-md text-white h-12 p-2 bg-gray-500"
-							onClick={passwordlessLogin}
-						>
-							Login Without Password
-						</button>
-					</div>
-					<div className="flex justify-center outline-none w-full">
-						<button className="border rounded-md text-white h-12 p-2 bg-gray-500" onClick={SignIn}>
-							SignIn using Custom Server
-						</button>
-					</div>
-				</div>
-			)}
-		</div>
-	);
-
 	const Homepage = () => {
-		const LeftNavigation = () => {
+		const FirebaseLoginUI = () => {
+			// let history = useHistory();
+			// let { pathname } = history.location;
+			// console.log(pathname);
+			// running ui.start() asynchronously because i want the function to be ran after the below firebase dom has been rendered
+			setTimeout(() => {
+				ui.start('#firebaseui-auth-container', uiConfig);
+			}, 0);
+
 			return (
-				<div className="flex flex-col h-full justify-between justify-content">
-					<Link to="/" className="h-full">
-						<div className="border h-full w-full flex flex-col justify-center items-center cursor-pointer bg-orange-500">
-							<div>{user && <p>{user.email ? user.email : user.phoneNumber}</p>}</div>
-							<button className="border p-1 rounded-md" onClick={(e) => logout(e)}>
-								Logout
-							</button>
+				<div>
+					<div id="firebaseui-auth-container" />
+					<div
+						id="loader"
+						style={{
+							marginTop: '20%',
+							display: 'flex',
+							justifyContent: 'center',
+							alignItems: 'center'
+						}}
+					>
+						<p>Loading...</p>
+					</div>
+					{showPasswordlessAuthUI && (
+						<div>
+							<div className="flex justify-center outline-none w-full">
+								<button
+									className="border rounded-md text-white h-12 p-2 bg-gray-500"
+									onClick={passwordlessLogin}
+								>
+									Login Without Password
+								</button>
+							</div>
+							<div className="flex justify-center outline-none w-full">
+								<button
+									className="border rounded-md text-white h-12 p-2 bg-gray-500"
+									onClick={signInWithCustomToken}
+								>
+									SignIn using Custom Server
+								</button>
+							</div>
 						</div>
-					</Link>
-					<Link to="/projects" className="h-full">
-						<div className="border h-full w-full flex justify-center items-center cursor-pointer bg-red-500">
-							Projects
-						</div>
-					</Link>
-					<Link to="/resume" className="h-full">
-						<div className="border h-full w-full flex justify-center items-center cursor-pointer bg-blue-500">
-							Resume
-						</div>
-					</Link>
-					<Link to="/technology" className="h-full">
-						<div className="border h-full w-full flex justify-center items-center cursor-pointer bg-green-500">
-							Familiar Technology
-						</div>
-					</Link>
+					)}
+				</div>
+			);
+		};
 
-					<Link to="/blogs" className="h-full">
-						<div className="border h-full w-full flex justify-center items-center cursor-pointer bg-yellow-500">
-							Blogs
+		const VerifyEmailNotification = () => {
+			return (
+				<div className="absolute top-0 p-1 m-1 flex justify-center ">
+					{currentUser && !currentUser.emailVerified && !currentUser.phoneNumber ? (
+						<div className="border rounded-sm my-1 p-1 text-center">
+							Please
+							<span
+								className="border border-red-900 rounded-md ml-1 p-1 text-red-900 hover:bg-gray-900 hover:text-orange-100 cursor-pointer "
+								onClick={verifyEmail}
+							>
+								verify
+							</span>
+							your email within 7 days
 						</div>
-					</Link>
-
-					<Link to="/tracker" className="h-full">
-						<div className="border h-full w-full flex justify-center items-center cursor-pointer bg-indigo-500">
-							Progress Tracker
-						</div>
-					</Link>
-
-					<Link to="/hireme" className="h-full">
-						<div className="border h-full w-full flex justify-center items-center cursor-pointer bg-pink-500">
-							Hire Me
-						</div>
-					</Link>
+					) : null}
 				</div>
 			);
 		};
@@ -186,62 +117,69 @@ const App = () => {
 		return (
 			<div className="relative flex h-screen text-center border-green-500">
 				<Router>
-					<div className="w-2/12 border">
-						<LeftNavigation />
+					<div className="max-w-2/12">
+						{currentUser ? (
+							<LeftNavigation currentUser={currentUser} setCurrentUser={setCurrentUser} />
+						) : null}
 					</div>
-
+					<VerifyEmailNotification />
 					<div className="w-full text-center">
-						<div className="absolute top-0 p-1 m-1 flex justify-center ">
-							{user && !auth.currentUser.emailVerified && !auth.currentUser.phoneNumber ? (
-								<div className="border rounded-sm my-1 p-1 text-center">
-									Please
-									<span
-										className="border border-red-900 rounded-md ml-1 p-1 text-red-900 hover:bg-gray-900 hover:text-orange-100 cursor-pointer "
-										onClick={verifyEmail}
-									>
-										verify
-									</span>
-									your email within 7 days
-								</div>
-							) : null}
-						</div>
 						<Switch>
-							{/* <Route exact path="/signin">
-								{firebaseLoginUI}
-							</Route> */}
+							<Route exact path="/signin">
+								{currentUser ? <Redirect to="/" /> : <FirebaseLoginUI />}
+							</Route>
+							<Route exact path="/reauthenticate">
+								<div>Reauthenticate page</div>
+							</Route>
 							<Route exact path="/">
-								<Dashboard />
+								{currentUser ? <Dashboard /> : <Redirect to="/signin" />}
 							</Route>
 							<Route exact path="/technology">
-								<Technology />
+								{currentUser ? <Technology /> : <Redirect to="/signin" />}
 							</Route>
 							<Route exact path="/resume">
-								<Resume />
+								{currentUser ? <Resume /> : <Redirect to="/signin" />}
 							</Route>
 							<Route exact path="/projects">
-								<Projects />
+								{currentUser ? <Projects /> : <Redirect to="/signin" />}
 							</Route>
 							<Route exact path="/blogs">
-								<Blogs />
+								{currentUser ? <Blogs /> : <Redirect to="/signin" />}
 							</Route>
 							<Route exact path="/tracker">
-								<ProgressTracker />
+								{currentUser ? <ProgressTracker /> : <Redirect to="/signin" />}
 							</Route>
 							<Route exact path="/hireme">
-								<HireMe />
+								{currentUser ? <HireMe /> : <Redirect to="/signin" />}
 							</Route>
 						</Switch>
 					</div>
 				</Router>
 
-				<div className="h-screen border">
-					<RightNavigation />
-				</div>
+				<div className="h-screen border">{currentUser ? <RightNavigation /> : null}</div>
 			</div>
 		);
 	};
 
-	return <Fragment>{user ? <Homepage /> : firebaseLoginUI}</Fragment>;
+	return <Homepage />;
 };
 
-export default App;
+// suppossed to return object containing states only
+const mapStateToProps = (store) => {
+	return { currentUser: store.user.currentUser };
+};
+
+// Note: distpatch is just an argument(expected to be a function) name hence you can use any name instead of dispatch.
+const mapDispatchToProps = (dispatch) => ({
+	setCurrentUser: (user) => dispatch(setCurrentUser(user))
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);
+// syntax connect(mapStateToProps as first parameter, mapDispatchToProps as second parameter)
+// if only one function is available, null can be used in the place of absent function like connect(null, mapDispatchToProps)
+// if only one function is passed to the connect HOC, then that function is expected to be mapStateToProps by react-redux. like connnect(mapStateToProps)
+
+// HOW TO USE THESE STATES AND FUNCTIONS STORED IN REDUX STERE IN OUR APPLICATION ?
+// connect HOC always passes REDUX STORE as an argument to mapDispatchToProps.
+// Similarly connect HOC passes dispatch() function which expects an ACTION OBJECT as it argument, to mapDispatchToprops().
+// The object returned by the mapStateToProps() and mapDispatchToProps() is always passed as props to our current receiving Component.
